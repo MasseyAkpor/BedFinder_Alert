@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bed Availability Tracking System  | Ghana's Emergency Hospital Network</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>">
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>BedAvailability-TrackingSystem<span class="logo-highlight">(BATS)</span></span>
+            </div>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#emergency" class="nav-link">Emergency</a></li>
+                <li><button class="nav-btn find-bed-btn">Find a Bed</button></li>
+                <li><button class="nav-btn staff-login-btn">Staff Login</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <div class="status-badge">
+                <span class="live-dot"></span>
+                <span id="live-status">Loading live status...</span>
+            </div>
+            
+            <h1 class="hero-title">
+                Emergency Care<br>
+                <span class="highlight">When Every Second Counts</span>
+            </h1>
+            
+            <p class="hero-description">
+                Real-time availability of ICU beds, ventilators, and oxygen across all 16 regions of Ghana.
+                Connecting patients to critical care facilities instantly.
+            </p>
+            
+            <div class="hero-buttons">
+                <button class="btn-primary find-bed-btn">
+                    <i class="fas fa-bed"></i> Find Available Beds
+                </button>
+                <button class="btn-secondary emergency-btn">
+                    <i class="fas fa-phone-alt"></i> Emergency: 112
+                </button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-beds">0</div>
+                    <div class="stat-label">Available Beds</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-hospitals">0</div>
+                    <div class="stat-label">Hospitals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">16</div>
+                    <div class="stat-label">Regions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="response-time">24/7</div>
+                    <div class="stat-label">Response</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Regions Section -->
+    <section id="regions" class="regions-section">
+        <h2>Covering All 16 Regions of Ghana</h2>
+        <p class="section-subtitle">Our network spans across every region to ensure no one is left behind</p>
+        
+        <div class="regions-grid">
+            <div class="region-card" data-region="Greater Accra">
+                <div class="region-icon">GA</div>
+                <h3>Greater Accra</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 12 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 45 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Ashanti">
+                <div class="region-icon">AS</div>
+                <h3>Ashanti</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 8 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 32 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Northern">
+                <div class="region-icon">NO</div>
+                <h3>Northern</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 6 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 18 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Western">
+                <div class="region-icon">WE</div>
+                <h3>Western</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 5 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 15 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Eastern">
+                <div class="region-icon">EA</div>
+                <h3>Eastern</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 4 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 12 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Central">
+                <div class="region-icon">CE</div>
+                <h3>Central</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 4 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 10 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Volta">
+                <div class="region-icon">VO</div>
+                <h3>Volta</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 3 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 8 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Upper East">
+                <div class="region-icon">UE</div>
+                <h3>Upper East</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 3 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 7 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Upper West">
+                <div class="region-icon">UW</div>
+                <h3>Upper West</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 2 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 5 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Bono">
+                <div class="region-icon">BO</div>
+                <h3>Bono</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 3 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 9 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Ahafo">
+                <div class="region-icon">AH</div>
+                <h3>Ahafo</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 2 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 6 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Bono East">
+                <div class="region-icon">BE</div>
+                <h3>Bono East</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 2 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 5 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Oti">
+                <div class="region-icon">OT</div>
+                <h3>Oti</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 2 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 4 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Savannah">
+                <div class="region-icon">SA</div>
+                <h3>Savannah</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 2 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 4 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="North East">
+                <div class="region-icon">NE</div>
+                <h3>North East</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 2 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 4 Beds</span>
+                </div>
+            </div>
+            <div class="region-card" data-region="Western North">
+                <div class="region-icon">WN</div>
+                <h3>Western North</h3>
+                <div class="region-stats">
+                    <span><i class="fas fa-hospital"></i> 2 Hospitals</span>
+                    <span><i class="fas fa-bed"></i> 4 Beds</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Section -->
+    <section id="emergency" class="emergency-section">
+        <div class="emergency-content">
+            <div class="emergency-icon">
+                <i class="fas fa-ambulance"></i>
+            </div>
+            <h2>Emergency Contacts</h2>
+            <p>For immediate assistance, contact these emergency numbers</p>
+            
+            <div class="emergency-contacts">
+                <div class="contact-card">
+                    <div class="contact-number">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:112">112</a>
+                    </div>
+                    <div class="contact-label">National Emergency</div>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-number">
+                        <i class="fas fa-ambulance"></i>
+                        <a href="tel:193">193</a>
+                    </div>
+                    <div class="contact-label">Ambulance Service</div>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-number">
+                        <i class="fas fa-shield-alt"></i>
+                        <a href="tel:191">191</a>
+                    </div>
+                    <div class="contact-label">Police Emergency</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <div class="logo">
+                    <i class="fas fa-hospital"></i>
+                    <span>BedFinder<span class="logo-highlight">Pro</span></span>
+                </div>
+                <p class="footer-tagline">
+                    Connecting patients to emergency care across Ghana
+                </p>
+                <div class="social-links">
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><button class="footer-link find-bed-btn">Find Beds</button></li>
+                    <li><button class="footer-link staff-login-btn">Staff Login</button></li>
+                    <li><a href="#emergency">Emergency Contacts</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Partners</h4>
+                <ul>
+                    <li>Ghana Health Service</li>
+                    <li>Ministry of Health</li>
+                    <li>National Ambulance Service</li>
+                    <li>Teaching Hospitals</li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> info@bedfinderpro.gov.gh</li>
+                    <li><i class="fas fa-phone"></i> +233 302 123 456</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Accra, Ghana</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 BedFinder Pro. All rights reserved.</p>
+            <p>Built for the people of Ghana 🇬🇭</p>
+        </div>
+    </footer>
+
+    <!-- Patient Portal Modal -->
+    <div id="patient-portal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-search"></i> Find Available Beds</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="search-filters">
+                    <div class="filter-group">
+                        <label for="region-select"><i class="fas fa-map-marker-alt"></i> Select Region</label>
+                        <select id="region-select">
+                            <option value="all">All Regions</option>
+                            <option value="Greater Accra">Greater Accra</option>
+                            <option value="Ashanti">Ashanti</option>
+                            <option value="Northern">Northern</option>
+                            <option value="Western">Western</option>
+                            <option value="Eastern">Eastern</option>
+                            <option value="Central">Central</option>
+                            <option value="Volta">Volta</option>
+                            <option value="Upper East">Upper East</option>
+                            <option value="Upper West">Upper West</option>
+                            <option value="Bono">Bono</option>
+                            <option value="Ahafo">Ahafo</option>
+                            <option value="Bono East">Bono East</option>
+                            <option value="Oti">Oti</option>
+                            <option value="Savannah">Savannah</option>
+                            <option value="North East">North East</option>
+                            <option value="Western North">Western North</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="bed-type"><i class="fas fa-bed"></i> Bed Type</label>
+                        <select id="bed-type">
+                            <option value="all">All Types</option>
+                            <option value="icu">ICU Beds</option>
+                            <option value="ventilator">Ventilators</option>
+                            <option value="oxygen">Oxygen Beds</option>
+                            <option value="general">General Beds</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="hospital-search"><i class="fas fa-search"></i> Search Hospitals</label>
+                        <input type="text" id="hospital-search" placeholder="Enter hospital name...">
+                    </div>
+                    
+                    <button class="btn-primary filter-btn" id="apply-filters">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                </div>
+                
+                <div class="results-header">
+                    <h3 id="results-count">Loading hospitals...</h3>
+                    <button class="btn-secondary" id="use-location">
+                        <i class="fas fa-location-arrow"></i> Use My Location
+                    </button>
+                </div>
+                
+                <div id="hospitals-grid" class="hospitals-grid">
+                    <!-- Hospitals will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Login Modal -->
+    <div id="staff-login-modal" class="modal">
+        <div class="modal-content login-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-md"></i> Hospital Staff Login</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="hospital-id"><i class="fas fa-hospital"></i> Hospital ID</label>
+                        <input type="text" id="hospital-id" placeholder="Enter your hospital ID" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="staff-id"><i class="fas fa-id-card"></i> Staff ID</label>
+                        <input type="text" id="staff-id" placeholder="Enter your staff ID" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <div class="form-options">
+                        <label class="checkbox">
+                            <input type="checkbox" id="remember-me">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+                    </button>
+                    
+                    <div class="login-info">
+                        <p><i class="fas fa-info-circle"></i> Only authorized hospital staff can access the dashboard.</p>
+                        <p>Contact admin if you need credentials.</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Dashboard Modal -->
+    <div id="staff-dashboard" class="modal">
+        <div class="modal-content dashboard-modal">
+            <div class="modal-header">
+                <div class="dashboard-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Hospital Dashboard</h2>
+                    <div class="hospital-info">
+                        <span id="current-hospital">Hospital Name</span>
+                        <button class="btn-secondary logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="dashboard-layout">
+                    <div class="dashboard-map">
+                        <div id="map-container"></div>
+                        <div class="map-controls">
+                            <button class="map-btn" id="refresh-map">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="map-btn" id="center-map">
+                                <i class="fas fa-crosshairs"></i> Center
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-controls">
+                        <div class="dashboard-section">
+                            <h3><i class="fas fa-bed"></i> Bed Management</h3>
+                            <div class="bed-controls">
+                                <div class="bed-type-control">
+                                    <label>ICU Beds</label>
+                                    <div class="counter">
+                                        <button class="counter-btn" data-type="icu" data-change="-1">-</button>
+                                        <span class="counter-value" id="icu-count">0</span>
+                                        <button class="counter-btn" data-type="icu" data-change="1">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bed-type-control">
+                                    <label>Ventilators</label>
+                                    <div class="counter">
+                                        <button class="counter-btn" data-type="ventilator" data-change="-1">-</button>
+                                        <span class="counter-value" id="ventilator-count">0</span>
+                                        <button class="counter-btn" data-type="ventilator" data-change="1">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bed-type-control">
+                                    <label>Oxygen Beds</label>
+                                    <div class="counter">
+                                        <button class="counter-btn" data-type="oxygen" data-change="-1">-</button>
+                                        <span class="counter-value" id="oxygen-count">0</span>
+                                        <button class="counter-btn" data-type="oxygen" data-change="1">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bed-type-control">
+                                    <label>General Beds</label>
+                                    <div class="counter">
+                                        <button class="counter-btn" data-type="general" data-change="-1">-</button>
+                                        <span class="counter-value" id="general-count">0</span>
+                                        <button class="counter-btn" data-type="general" data-change="1">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-section">
+                            <h3><i class="fas fa-history"></i> Recent Updates</h3>
+                            <div id="updates-list" class="updates-list">
+                                <!-- Updates will appear here -->
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-section">
+                            <h3><i class="fas fa-chart-line"></i> Statistics</h3>
+                            <div class="stats-panel">
+                                <div class="stat-item">
+                                    <div class="stat-label">Total Capacity</div>
+                                    <div class="stat-value" id="total-capacity">0</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Available Now</div>
+                                    <div class="stat-value" id="available-now">0</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Occupancy Rate</div>
+                                    <div class="stat-value" id="occupancy-rate">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary" id="save-changes">
+                            <i class="fas fa-save"></i> Save All Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
